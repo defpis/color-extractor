@@ -1,0 +1,32 @@
+{
+  "name": "color-extractor",
+  "version": "1.0.0",
+  "description": "A TypeScript library for extracting colors from images",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "npm run build:lib && npm run dev --prefix example",
+    "build": "npm run build:lib && npm run build --prefix example",
+    "build:lib": "tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build:lib",
+    "preview": "npm run preview --prefix example"
+  },
+  "keywords": [
+    "color",
+    "extractor",
+    "image",
+    "canvas"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ]
+}
