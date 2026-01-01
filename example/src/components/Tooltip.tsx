@@ -42,7 +42,7 @@ export function Tooltip({ content, children }: TooltipProps) {
             {content}
             <div className="absolute left-1/2 -translate-x-1/2 top-full w-2 h-2 bg-gray-800 rotate-45 -mt-1" />
           </div>,
-          document.body
+          document.body,
         )}
     </>
   );

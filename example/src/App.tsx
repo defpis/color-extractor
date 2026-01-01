@@ -65,16 +65,16 @@ function App() {
       src,
       aspectRatio: DEFAULT_ASPECT_RATIO,
       img: null,
-    }))
+    })),
   );
 
   const [extractConfig, setExtractConfig] = useState<ExtractConfig>(
-    DEFAULT_EXTRACT_CONFIG
+    DEFAULT_EXTRACT_CONFIG,
   );
 
   const handleChange = useCallback((payload: Partial<ImageItem>) => {
     setImages((prev) =>
-      prev.map((img) => (img.id === payload.id ? { ...img, ...payload } : img))
+      prev.map((img) => (img.id === payload.id ? { ...img, ...payload } : img)),
     );
   }, []);
 

@@ -1,8 +1,6 @@
 import { HSL } from "./types";
 
-/**
- * RGB 转 HSL
- */
+/** RGB (0-255) → HSL (h: 0-360, s/l: 0-1) */
 export function rgbToHsl(r: number, g: number, b: number): HSL {
   r /= 255;
   g /= 255;
@@ -12,9 +10,7 @@ export function rgbToHsl(r: number, g: number, b: number): HSL {
   const min = Math.min(r, g, b);
   const l = (max + min) / 2;
 
-  if (max === min) {
-    return { h: 0, s: 0, l };
-  }
+  if (max === min) return { h: 0, s: 0, l };
 
   const d = max - min;
   const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
@@ -34,13 +30,11 @@ export function rgbToHsl(r: number, g: number, b: number): HSL {
   return { h: h * 360, s, l };
 }
 
-/**
- * HSL 转 RGB
- */
+/** HSL (h: 0-360, s/l: 0-1) → RGB (0-255) */
 export function hslToRgb(
   h: number,
   s: number,
-  l: number
+  l: number,
 ): [number, number, number] {
   h /= 360;
 
@@ -68,9 +62,7 @@ export function hslToRgb(
   ];
 }
 
-/**
- * RGB 转 Hex
- */
+/** RGB (0-255) → Hex (#rrggbb) */
 export function rgbToHex(r: number, g: number, b: number): string {
   return "#" + [r, g, b].map((x) => x.toString(16).padStart(2, "0")).join("");
 }

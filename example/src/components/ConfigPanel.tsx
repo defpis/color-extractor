@@ -18,7 +18,7 @@ export function ConfigPanel({
 
   const updateConfig = <K extends keyof ExtractConfig>(
     key: K,
-    value: ExtractConfig[K]
+    value: ExtractConfig[K],
   ) => {
     onConfigChange({ ...config, [key]: value });
   };

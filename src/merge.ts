@@ -1,18 +1,17 @@
 import type { ExtractedColor } from "./types";
 import { hslToRgb, rgbToHex } from "./color";
 
-/**
- * 色相环加权平均（处理 0°/360° 边界）
- */
+/** 色相环加权平均（处理 0°/360° 边界） */
 function weightedHueAverage(
   h1: number,
   h2: number,
   w1: number,
-  w2: number
+  w2: number,
 ): number {
   const totalWeight = w1 + w2;
-  if (totalWeight === 0) return h1; // 防止除零
+  if (totalWeight === 0) return h1;
 
+  // 取最短路径方向
   let diff = h2 - h1;
   if (diff > 180) diff -= 360;
   if (diff < -180) diff += 360;
@@ -24,22 +23,26 @@ function weightedHueAverage(
 }
 
 /**
- * 合并色相接近的颜色（按面积加权）
+ * 合并色相接近的颜色
+ * - 按面积加权平均 H/S/L
+ * - 迭代合并直到没有接近的颜色对
  */
 export function mergeCloseColors(
   colors: ExtractedColor[],
-  hueMergeDistance: number
+  hueMergeDistance: number,
 ): ExtractedColor[] {
   if (colors.length === 0 || hueMergeDistance <= 0) return colors;
 
   const distance = hueMergeDistance * 360;
   const merged = [...colors];
 
+  // 迭代合并
   let changed = true;
   while (changed) {
     changed = false;
     outer: for (let i = 0; i < merged.length; i++) {
       for (let j = i + 1; j < merged.length; j++) {
+        // 环形色相距离
         let hueDist = Math.abs(merged[i].hue - merged[j].hue);
         hueDist = Math.min(hueDist, 360 - hueDist);
 
@@ -48,6 +51,7 @@ export function mergeCloseColors(
           const b = merged[j];
           const totalArea = a.area + b.area;
 
+          // 面积加权平均
           const avgHue = weightedHueAverage(a.hue, b.hue, a.area, b.area);
           const avgSat =
             (a.saturation * a.area + b.saturation * b.area) / totalArea;
@@ -71,6 +75,5 @@ export function mergeCloseColors(
     }
   }
 
-  // 保持传入顺序（由调用方决定排序策略）
   return merged;
 }

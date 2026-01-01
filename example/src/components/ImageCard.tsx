@@ -133,5 +133,5 @@ export const ImageCard = memo(
         </div>
       </>
     );
-  }
+  },
 );

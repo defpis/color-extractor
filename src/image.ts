@@ -3,7 +3,7 @@
  */
 export function downsampleImage(
   img: HTMLImageElement,
-  maxSize: number
+  maxSize: number,
 ): ImageData {
   const { width, height } = img;
 

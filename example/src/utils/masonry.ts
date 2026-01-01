@@ -43,7 +43,7 @@ export interface MasonryLayout {
 export function calculateColumns(
   containerWidth: number,
   columnWidth: number,
-  gap: number
+  gap: number,
 ): number {
   return Math.max(1, Math.floor((containerWidth + gap) / (columnWidth + gap)));
 }
@@ -53,7 +53,7 @@ export function calculateCenterOffset(
   containerWidth: number,
   columns: number,
   columnWidth: number,
-  gap: number
+  gap: number,
 ): number {
   const contentWidth = columns * columnWidth + (columns - 1) * gap;
   return Math.max(0, (containerWidth - contentWidth) / 2);
@@ -72,7 +72,7 @@ export function findOptimalColumnWidth(
   containerWidth: number,
   [minWidth, maxWidth]: ColumnWidthRange,
   gap: number,
-  maxOffset: number
+  maxOffset: number,
 ): number {
   const minColumns = calculateColumns(containerWidth, maxWidth, gap);
   const maxColumns = calculateColumns(containerWidth, minWidth, gap);
@@ -86,14 +86,14 @@ export function findOptimalColumnWidth(
 
     // 限制在范围内
     const columnWidth = Math.round(
-      Math.max(minWidth, Math.min(maxWidth, perfectColumnWidth))
+      Math.max(minWidth, Math.min(maxWidth, perfectColumnWidth)),
     );
 
     const offset = calculateCenterOffset(
       containerWidth,
       columns,
       columnWidth,
-      gap
+      gap,
     );
 
     // 空白足够小，直接采用
@@ -118,7 +118,7 @@ export function findOptimalColumnWidth(
 /** 计算瀑布流布局 */
 export function calculateMasonryLayout(
   items: LayoutItem[],
-  config: MasonryConfig
+  config: MasonryConfig,
 ): MasonryLayout {
   const { containerWidth, columnWidthRange, gap, maxOffset, extraHeight } =
     config;
@@ -128,7 +128,7 @@ export function calculateMasonryLayout(
     containerWidth,
     columnWidthRange,
     gap,
-    maxOffset
+    maxOffset,
   );
 
   // 2. 计算列数和偏移
@@ -137,7 +137,7 @@ export function calculateMasonryLayout(
     containerWidth,
     columns,
     columnWidth,
-    gap
+    gap,
   );
 
   // 3. 计算每个 item 的位置

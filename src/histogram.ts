@@ -1,18 +1,19 @@
 import { Peak2D } from "./types";
 
 /**
- * 对二维直方图进行高斯平滑
- * 色相维度是环形的，饱和度维度是线性的
+ * 二维直方图高斯平滑
+ * - 色相维度：环形（0° 和 360° 相邻）
+ * - 饱和度维度：线性（边界 clamp）
  */
 export function smooth2DHistogram(
   histogram: Float32Array,
   hueBins: number,
   satBins: number,
-  radius: number
+  radius: number,
 ): Float32Array {
   const smoothed = new Float32Array(hueBins * satBins);
 
-  // 生成高斯权重
+  // 预计算高斯权重矩阵
   const weights: number[][] = [];
   let weightSum = 0;
   for (let dh = -radius; dh <= radius; dh++) {
@@ -25,23 +26,21 @@ export function smooth2DHistogram(
     }
   }
 
-  // 归一化
+  // 归一化权重
   for (let dh = -radius; dh <= radius; dh++) {
     for (let ds = -radius; ds <= radius; ds++) {
       weights[dh + radius][ds + radius] /= weightSum;
     }
   }
 
-  // 应用平滑
+  // 卷积
   for (let h = 0; h < hueBins; h++) {
     for (let s = 0; s < satBins; s++) {
       let sum = 0;
       for (let dh = -radius; dh <= radius; dh++) {
         for (let ds = -radius; ds <= radius; ds++) {
-          // 色相环形索引
-          const hIdx = (h + dh + hueBins) % hueBins;
-          // 饱和度边界处理（clamp）
-          const sIdx = Math.max(0, Math.min(satBins - 1, s + ds));
+          const hIdx = (h + dh + hueBins) % hueBins; // 环形
+          const sIdx = Math.max(0, Math.min(satBins - 1, s + ds)); // clamp
           sum +=
             histogram[hIdx * satBins + sIdx] *
             weights[dh + radius][ds + radius];
@@ -55,7 +54,10 @@ export function smooth2DHistogram(
 }
 
 /**
- * 在二维直方图中找峰值
+ * 二维直方图峰值检测
+ * @param threshold 最小峰值阈值（相对于最大值的比例）
+ * @param minHueDistance 峰值间最小色相距离（0-1）
+ * @param minSatDistance 峰值间最小饱和度距离（0-1）
  */
 export function find2DPeaks(
   histogram: Float32Array,
@@ -63,7 +65,7 @@ export function find2DPeaks(
   satBins: number,
   threshold: number,
   minHueDistance: number,
-  minSatDistance: number
+  minSatDistance: number,
 ): Peak2D[] {
   const maxVal = Math.max(...histogram);
   if (maxVal === 0) return [];
@@ -71,7 +73,7 @@ export function find2DPeaks(
   const thresholdValue = maxVal * threshold;
   const peaks: Peak2D[] = [];
 
-  // 找局部最大值（8邻域）
+  // 8 邻域局部最大值检测
   for (let h = 0; h < hueBins; h++) {
     for (let s = 0; s < satBins; s++) {
       const curr = histogram[h * satBins + s];
@@ -81,9 +83,8 @@ export function find2DPeaks(
       for (let dh = -1; dh <= 1 && isMax; dh++) {
         for (let ds = -1; ds <= 1 && isMax; ds++) {
           if (dh === 0 && ds === 0) continue;
-          // 色相环形索引
+
           const hIdx = (h + dh + hueBins) % hueBins;
-          // 饱和度边界
           const sIdx = s + ds;
           if (sIdx < 0 || sIdx >= satBins) continue;
 
@@ -105,31 +106,23 @@ export function find2DPeaks(
     }
   }
 
-  // 按值排序
+  // 按值降序排列
   peaks.sort((a, b) => b.value - a.value);
 
-  // 合并相近峰值
+  // 非极大值抑制：过滤距离过近的峰值
   const merged: Peak2D[] = [];
   const minHueBins = Math.round(minHueDistance * hueBins);
   const minSatBins = Math.round(minSatDistance * satBins);
 
   for (const peak of peaks) {
-    let tooClose = false;
-    for (const existing of merged) {
-      // 计算色相环形距离
+    const tooClose = merged.some((existing) => {
       let hueDist = Math.abs(peak.hueIndex - existing.hueIndex);
-      hueDist = Math.min(hueDist, hueBins - hueDist);
-
+      hueDist = Math.min(hueDist, hueBins - hueDist); // 环形距离
       const satDist = Math.abs(peak.satIndex - existing.satIndex);
+      return hueDist < minHueBins && satDist < minSatBins;
+    });
 
-      if (hueDist < minHueBins && satDist < minSatBins) {
-        tooClose = true;
-        break;
-      }
-    }
-    if (!tooClose) {
-      merged.push(peak);
-    }
+    if (!tooClose) merged.push(peak);
   }
 
   return merged;
