@@ -1,27 +1,12 @@
 import { useState } from "react";
-import { ExtractConfig } from "../App";
-import { Slider } from "./Slider";
 import { UploadButton } from "./UploadButton";
 
-interface ConfigPanelProps {
-  config: ExtractConfig;
-  onConfigChange: (config: ExtractConfig) => void;
-  onUpload?: (files: File[]) => void;
+interface UploadPanelProps {
+  onUpload: (files: File[]) => void;
 }
 
-export function ConfigPanel({
-  config,
-  onConfigChange,
-  onUpload,
-}: ConfigPanelProps) {
+export function UploadPanel({ onUpload }: UploadPanelProps) {
   const [isOpen, setIsOpen] = useState(true);
-
-  const updateConfig = <K extends keyof ExtractConfig>(
-    key: K,
-    value: ExtractConfig[K],
-  ) => {
-    onConfigChange({ ...config, [key]: value });
-  };
 
   return (
     <div className="sticky top-0 h-screen z-50 flex items-center">
@@ -57,51 +42,14 @@ export function ConfigPanel({
               </div>
             </div>
 
-            {/* Sliders */}
-            <div className="p-6 space-y-5">
-              <Slider
-                label="色相精度"
-                tooltip="值越大，直方图分箱越多，颜色区分越细。0 = 36 分箱，1 = 360 分箱"
-                value={config.huePrecision}
-                onChange={(v) => updateConfig("huePrecision", v)}
-              />
-              <Slider
-                label="色相合并距离"
-                tooltip="色相差小于此值的颜色会被合并。值越大，合并越激进"
-                value={config.hueMergeDistance}
-                onChange={(v) => updateConfig("hueMergeDistance", v)}
-              />
-              <Slider
-                label="最小饱和度"
-                tooltip="过滤饱和度低于此值的灰色像素。值越大，保留的颜色越鲜艳"
-                value={config.minSaturation}
-                onChange={(v) => updateConfig("minSaturation", v)}
-              />
-              <Slider
-                label="亮度边界"
-                tooltip="过滤过暗或过亮的像素。值越大，排除的黑白范围越大"
-                value={config.lightnessMargin}
-                onChange={(v) => updateConfig("lightnessMargin", v)}
-              />
-              <Slider
-                label="峰值合并距离"
-                tooltip="直方图中相近峰值的合并距离。值越大，检测到的颜色越少"
-                value={config.peakDistance}
-                onChange={(v) => updateConfig("peakDistance", v)}
-              />
-            </div>
-
             {/* Upload Section */}
-            <div className="p-6 pt-2">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-              </div>
-              {onUpload && <UploadButton onUpload={onUpload} />}
+            <div className="p-6">
+              <UploadButton onUpload={onUpload} />
             </div>
           </div>
         </div>
 
-        {/* 折叠按钮 - 悬浮不占空间 */}
+        {/* 折叠按钮 */}
         <button
           onClick={() => setIsOpen(!isOpen)}
           className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full bg-white shadow-lg rounded-r-lg px-1.5 py-4 hover:bg-gray-50 transition-colors"
@@ -126,3 +74,4 @@ export function ConfigPanel({
     </div>
   );
 }
+

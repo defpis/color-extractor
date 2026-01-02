@@ -3,7 +3,7 @@
  */
 export function downsampleImage(
   img: HTMLImageElement,
-  maxSize: number,
+  maxSize: number
 ): ImageData {
   const { width, height } = img;
 
@@ -22,8 +22,8 @@ export function downsampleImage(
     throw new Error("Failed to get canvas context");
   }
 
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = "high";
+  ctx.imageSmoothingEnabled = false;
+  // ctx.imageSmoothingQuality = "high";
   ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
   return ctx.getImageData(0, 0, newWidth, newHeight);

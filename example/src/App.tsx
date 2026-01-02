@@ -1,27 +1,10 @@
 import { useState, useCallback } from "react";
 import { MasonryGrid } from "./components/MasonryGrid";
 import { ImageCard } from "./components/ImageCard";
-import { ConfigPanel } from "./components/ConfigPanel";
+import { UploadPanel } from "./components/UploadPanel";
 import "./index.css";
 import { makeId } from "./utils/identity";
 import { ColumnWidthRange, LayoutItem } from "./utils/masonry";
-
-// 颜色抽取配置
-export interface ExtractConfig {
-  peakDistance: number; // 峰值合并距离（值越大颜色越少）
-  huePrecision: number; // 色相精度（值越大区分越细）
-  minSaturation: number; // 最小饱和度（过滤灰色）
-  lightnessMargin: number; // 亮度边界（过滤黑白）
-  hueMergeDistance: number; // 色相合并距离
-}
-
-export const DEFAULT_EXTRACT_CONFIG: ExtractConfig = {
-  peakDistance: 0.08, // 8% 距离内的峰值合并
-  huePrecision: 1, // 较高精度的色相分箱
-  minSaturation: 0.2, // 过滤饱和度低于 20% 的
-  lightnessMargin: 0.2, // 亮度边界（过滤接近黑白的颜色）
-  hueMergeDistance: 0.08, // 合并色相距离 < 8% 的颜色
-};
 
 // 图片数据接口
 export interface ImageItem extends LayoutItem {
@@ -65,16 +48,12 @@ function App() {
       src,
       aspectRatio: DEFAULT_ASPECT_RATIO,
       img: null,
-    })),
-  );
-
-  const [extractConfig, setExtractConfig] = useState<ExtractConfig>(
-    DEFAULT_EXTRACT_CONFIG,
+    }))
   );
 
   const handleChange = useCallback((payload: Partial<ImageItem>) => {
     setImages((prev) =>
-      prev.map((img) => (img.id === payload.id ? { ...img, ...payload } : img)),
+      prev.map((img) => (img.id === payload.id ? { ...img, ...payload } : img))
     );
   }, []);
 
@@ -90,11 +69,7 @@ function App() {
 
   return (
     <div className="min-h-screen flex">
-      <ConfigPanel
-        config={extractConfig}
-        onConfigChange={setExtractConfig}
-        onUpload={handleUpload}
-      />
+      <UploadPanel onUpload={handleUpload} />
       <div className="flex-1 p-4">
         <MasonryGrid
           items={images}
@@ -106,7 +81,6 @@ function App() {
             <ImageCard
               {...item}
               extraHeight={DEFAULT_EXTRA_HEIGHT}
-              extractConfig={extractConfig}
               onChange={handleChange}
             />
           )}
